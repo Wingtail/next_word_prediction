@@ -73,7 +73,7 @@ def main():
     print("{} words in vocabulary".format(vocab_id))
 
     with open("num_vocabulary.txt","w") as f:
-        f.write(vocab_id)
+        f.write(str(vocab_id))
 
     print("Saving vocabulary")
     pickle.dump(vocabulary, open("vocabulary.pckl", "wb"))

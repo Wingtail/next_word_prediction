@@ -1,3 +1,7 @@
 dataset
+ffw_log
 *.csv
 *.pckl
+checkpoint
+ckpt*
+__pycache__

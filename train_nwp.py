@@ -67,18 +67,19 @@ def main():
 
     logger = TensorboardLogger('./ffw_log/', 'ffw_model')
 
-    optimizer = RectifiedAdam(0.001, weight_decay=0.000001)
+    optimizer = RectifiedAdam(0.0001, weight_decay=0.000001)
 
     loss_accum = tf.keras.metrics.Mean()
     acc_accum = tf.keras.metrics.SparseTopKCategoricalAccuracy(k=5)
 
     for epoch in range(epochs):
-        train_data = get_dataset("corpus_train.csv", 32).map(Unpack()).repeat(1)
-        vali_data = get_dataset("corpus_vali.csv", 16).map(Unpack()).repeat(1)
+        train_data = get_dataset("corpus_train.csv", 256).map(Unpack()).repeat(1)
+        vali_data = get_dataset("corpus_vali.csv", 32).map(Unpack()).repeat(1)
 
 
         for text, labels in train_data:
             loss, grads, output = get_loss(model, text, labels)
+            grads = [tf.clip_by_value(grad, -1., 1.) for grad in grads]
             optimizer.apply_gradients(zip(grads, model.trainable_variables))
 
             acc_accum.update_state(labels.numpy(), output.numpy())
@@ -96,6 +97,8 @@ def main():
                 acc_accum.reset_states()
 
             global_step += 1
+
+        model.save_weights("ckpt")
 
         loss_accum.reset_states()
         acc_accum.reset_states()

@@ -14,6 +14,7 @@ class TensorboardLogger(object):
     
     def create_tb_dir(self, log_dir):
         if not os.path.exists(log_dir):
+            print("made dir")
             os.makedirs(log_dir, exist_ok=True)
         else:
             log_dir = log_dir + '-' + datetime.now().strftime("%B-%d-%Y_%I+%M%p")
