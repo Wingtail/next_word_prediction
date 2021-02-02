@@ -20,12 +20,14 @@ class Unpack(object):
     def __init__(self):
         pass
     def __call__(self, features, labels):
-        return features['sentence'], labels
+        return features['sentence'], labels, features['pos_weight']
 
-def get_loss(model, x, labels):
+def get_loss(model, x, labels, pos_weights):
     with tf.GradientTape() as tape:
         output = model(x)
-        loss = tf.math.reduce_mean(tf.keras.losses.sparse_categorical_crossentropy(labels, output, from_logits=True))
+        loss = tf.keras.losses.sparse_categorical_crossentropy(labels, output, from_logits=True)
+        loss = loss * pos_weights
+        loss = tf.math.reduce_mean(loss)
     return loss, tape.gradient(loss, model.trainable_variables), tf.nn.softmax(tf.stop_gradient(output))
 
 def evaluate(model, x, labels):
@@ -77,8 +79,8 @@ def main():
         vali_data = get_dataset("corpus_vali.csv", 32).map(Unpack()).repeat(1)
 
 
-        for text, labels in train_data:
-            loss, grads, output = get_loss(model, text, labels)
+        for text, labels, pos_weights in train_data:
+            loss, grads, output = get_loss(model, text, labels, pos_weights)
             grads = [tf.clip_by_value(grad, -1., 1.) for grad in grads]
             optimizer.apply_gradients(zip(grads, model.trainable_variables))
 
@@ -105,8 +107,8 @@ def main():
 
         print("Validation in Progress...")
 
-        for text, labels in vali_data:
-            loss, grads, output = get_loss(model, text, labels)
+        for text, labels, pos_weights in vali_data:
+            loss, grads, output = get_loss(model, text, labels, pos_weights)
             optimizer.apply_gradients(zip(grads, model.trainable_variables))
 
             acc_accum.update_state(labels.numpy(), output.numpy())
