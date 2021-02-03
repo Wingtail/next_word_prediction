@@ -1,13 +1,8 @@
-from nltk.corpus import gutenberg, brown
+from nltk.corpus import gutenberg, brown, nps_chat, webtext
 import os
-
-def _preprocess(raw_text):
-    raw_text = (raw_text.replace('\n', ' ').replace('\r', ' ').replace('\ufeff', ' ').replace('_','')).lower()
-    return raw_text
 
 def get_gutenberg():
     #Gutenberg corpus
-    total_data_count = 0
     for fileid in gutenberg.fileids():
         print("Gutenberg fileid: ", fileid)
         with open("./text_data/"+fileid, "w") as f:
@@ -21,11 +16,29 @@ def get_brown():
         with open("./text_data/"+fileid+".txt", "w") as f:
             f.write(raw_text)
 
+def get_web_text():
+    for fileid in webtext.fileids():
+        print("Webtext fileid: ", fileid)
+        raw_text = webtext.words(fileid)
+        raw_text = ' '.join(raw_text)
+        with open("./text_data/"+fileid+".txt", "w") as f:
+            f.write(raw_text)
+
+def get_nps_chat():
+    for fileid in nps_chat.fileids():
+        print("Npschat fileid: ", fileid)
+        raw_text = nps_chat.words(fileid)
+        raw_text = ' '.join(raw_text)
+        with open("./text_data/"+fileid+".txt", "w") as f:
+            f.write(raw_text)
+
 def main():
     if not os.path.exists("./text_data/"):
         os.makedirs("./text_data/", exist_ok=True)
-    get_gutenberg()
-    get_brown()
+    # get_gutenberg()
+    # get_brown()
+    get_web_text()
+    get_nps_chat()
 
 if __name__ == "__main__":
     main()

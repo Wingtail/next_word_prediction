@@ -41,8 +41,8 @@ class NWPDataCreator:
         frequencies = np.array([freq[1] for freq in self.freqs])
 
         cum_frequencies = np.cumsum(frequencies)
-        freq_threshold = int(cum_frequencies[-1] * 0.9) #Account only 
-        idx = np.amax(np.argwhere((cum_frequencies <= freq_threshold) & (frequencies >= 10)))
+        # freq_threshold = int(cum_frequencies[-1] * 0.9) #Account only 
+        idx = np.amax(np.argwhere(frequencies >= 2))
 
         self.freqs = self.freqs[:idx]
 
@@ -67,6 +67,7 @@ class NWPDataCreator:
         print("Pos weights: ")
         print(self.pos_weights)
         self.pos_weights /= self.pos_weights[0]
+        self.pos_weights = np.log(self.pos_weights) + 1.0
         print(self.pos_weights)
 
     def _compile_article_for_USE(self, raw_text, writer):
@@ -80,17 +81,28 @@ class NWPDataCreator:
             words = word_tokenize(sent)
             cleaned_sent = [word for word in words if all(c.isalnum() for c in word)]
             if len(cleaned_sent) > 1:
-                for i in range(1,len(cleaned_sent)-1):
-                    curr_sent = cleaned_sent[max(i-10,0):i] #limit to 10 words max
-                    target_word = cleaned_sent[i]
-                    if target_word not in self.vocabulary:
-                        self.vocabulary[target_word] = self.vocab_id
-                        self.freqs.append([self.vocab_id, 0])
-                        self.vocab_id += 1
+                for n_gram in range(1, min(5, len(cleaned_sent))):
+                    for i in range(max(len(cleaned_sent)-n_gram,1)):
+                        curr_sent = cleaned_sent[i:i+n_gram]
+                        target_word = cleaned_sent[i+n_gram]
+                        if target_word not in self.vocabulary:
+                            self.vocabulary[target_word] = self.vocab_id
+                            self.freqs.append([self.vocab_id, 0])
+                            self.vocab_id += 1
 
-                    self.freqs[self.vocabulary[target_word]][1] += 1
-                    passage.append((' '.join(curr_sent), target_word))
-                    self.total_data_count += 1
+                        self.freqs[self.vocabulary[target_word]][1] += 1
+                        passage.append((' '.join(curr_sent), target_word))
+                        self.total_data_count += 1
+                curr_sent = cleaned_sent[:-1]
+                target_word = cleaned_sent[-1]
+                if target_word not in self.vocabulary:
+                    self.vocabulary[target_word] = self.vocab_id
+                    self.freqs.append([self.vocab_id, 0])
+                    self.vocab_id += 1
+
+                self.freqs[self.vocabulary[target_word]][1] += 1
+                passage.append((' '.join(curr_sent), target_word))
+                self.total_data_count += 1
 
         random.shuffle(passage)
 
@@ -142,6 +154,9 @@ class NWPDataCreator:
         print("--------Summary--------")
         print("Total data written: ", self.total_data_count)
         print("Processed vocabulary count: ", self.vocab_id)
+
+        with open("num_vocabulary.txt", "w") as f:
+            f.write(str(self.vocab_id))
 
     def save_vocab(self):
         print("----Saving Vocabulary-----")

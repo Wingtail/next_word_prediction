@@ -26,11 +26,11 @@ def get_loss(model, x, labels, pos_weights):
     with tf.GradientTape() as tape:
         output = model(x)
         loss = tf.keras.losses.sparse_categorical_crossentropy(labels, output, from_logits=True)
-        loss = loss * pos_weights
+        # loss = loss * pos_weights
         loss = tf.math.reduce_mean(loss)
     return loss, tape.gradient(loss, model.trainable_variables), tf.nn.softmax(tf.stop_gradient(output))
 
-def evaluate(model, x, labels):
+def evaluate(model, x, labels, pos_weights):
     output = model(x)
     loss = tf.math.reduce_mean(tf.keras.losses.sparse_categorical_crossentropy(labels, output, from_logits=True))
     return loss, output
@@ -53,6 +53,9 @@ def main():
 
     test_phrases = [
         "i",
+        "i am",
+        "you are",
+        "i was a little",
         "mixed precision",
         "you need",
         "there needs to",
@@ -69,13 +72,13 @@ def main():
 
     logger = TensorboardLogger('./ffw_log/', 'ffw_model')
 
-    optimizer = RectifiedAdam(0.0001, weight_decay=0.000001)
+    optimizer = RectifiedAdam(0.001, weight_decay=0.000001)
 
     loss_accum = tf.keras.metrics.Mean()
-    acc_accum = tf.keras.metrics.SparseTopKCategoricalAccuracy(k=5)
+    acc_accum = tf.keras.metrics.SparseTopKCategoricalAccuracy(k=3)
 
     for epoch in range(epochs):
-        train_data = get_dataset("corpus_train.csv", 256).map(Unpack()).repeat(1)
+        train_data = get_dataset("corpus_train.csv", 64).map(Unpack()).repeat(1)
         vali_data = get_dataset("corpus_vali.csv", 32).map(Unpack()).repeat(1)
 
 
@@ -108,8 +111,7 @@ def main():
         print("Validation in Progress...")
 
         for text, labels, pos_weights in vali_data:
-            loss, grads, output = get_loss(model, text, labels, pos_weights)
-            optimizer.apply_gradients(zip(grads, model.trainable_variables))
+            loss, output = evaluate(model, text, labels, pos_weights)
 
             acc_accum.update_state(labels.numpy(), output.numpy())
             loss_accum.update_state(loss.numpy())
