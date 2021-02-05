@@ -79,7 +79,7 @@ class NWPDataCreator:
 
         for sent in tqdm(sents):
             words = word_tokenize(sent)
-            cleaned_sent = [word for word in words if all(c.isalnum() for c in word)]
+            cleaned_sent = [word for word in words if any(c.isalnum() for c in word)]
             if len(cleaned_sent) > 1:
                 for n_gram in range(1, min(5, len(cleaned_sent))):
                     for i in range(max(len(cleaned_sent)-n_gram,1)):

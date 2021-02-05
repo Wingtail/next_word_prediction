@@ -1,2 +1,6 @@
-*
-!*.py
+*.csv
+text_data*
+checkpoint*
+ffw_log
+__pycache__
+model_save

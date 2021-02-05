@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="/static/css/test.css?version=0.7.4">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</head>
+
+<body>
+
+  <script>
+    function addText(text){
+        var txt = document.getElementById('input_text');
+        txt.value += ' ';
+        txt.value += text;
+    }
+
+$(document).keypress(function(event){
+    if(event.keyCode == 13){
+        getSearchResult();
+    }
+
+});
+
+  function getSearchResult() {
+    $("#btn_group").addClass('animate');
+  var text1= $('#input_text').val();
+    $.ajax({
+                url: "/join",
+                type: "POST",
+                data: {text1:text1}
+            }).done(function(response) {
+              $(".btn-group").empty();
+              var html= "<div id=\"btn_group\" class=\"btn-group\">"
+              response =response.result;
+                   $.each(response,function(key,val){
+                   console.log(val);
+                       html+="<button class=\"button\" onclick=\"addText(\'"+val[0]+"\')\"><span>"+val[0]+"</span></button>"
+                  });
+                  html +="</div>";
+                  $(".btn-group").append(html);
+                  $("#btn_group").removeClass('animate');
+              });
+
+  };
+
+    </script>
+
+<div id="titleGroup">
+<h2>Next Word Prediction</h2>
+<h3>v0.1 Brian Kim</h3>
+
+</div>
+
+<div id="searchGroup">
+<input class="search" type="text" id="input_text" name="input_text" placeholder="Type your phrase and press Predict to get your next word!">
+<button class="searchButton" onclick="getSearchResult()" >Predict</button>
+
+</div>
+
+<div id="btn_group" class="btn-group">
+    <h3>
+    Press Predict to get your next word!
+    </h3>
+    <h3>
+        The words are sorted from most confident to least confident. Click on the word and see what happens!
+        </h3>
+    <div>
+    <h4>
+        The model is a fintuned Universal Sentence Encoder (USE) that roughly predicts 25K vocabulary words.
+    </h4>
+    <h4>
+        Specifically, a non-linear layer with GELU activation is stacked on top of USE, followed by the linear inference layer with softmax activation.
+    </h4>
+    <h4>
+        It was trained in a custom dataset largely compiled from Melvile's Moby Dick, Hollywood movie scripts such as Pirates of the Caribbean, and some wine commentary. The model oddly loves words from Moby Dick! It's a true seafarer.
+    </h4>
+    </div>
+</div>
+
+
+</body>
+</html>
