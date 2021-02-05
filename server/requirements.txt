@@ -1,8 +1,5 @@
 Flask==1.1.2
 gunicorn==20.0.4
-scipy 
 tensorflow
 tensorflow-addons
-tensorflow-estimator
 tensorflow-hub
-urllib3 
