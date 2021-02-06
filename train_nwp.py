@@ -110,10 +110,10 @@ def main():
                 acc_accum.reset_states()
                 if stats['loss'] < best_train_loss:
                     best_train_loss = stats['loss']
-                    model.save_weights(checkpoint_dir+"/best_train")
+                    model.finetuned.save_weights(checkpoint_dir+"/best_train")
 
             if global_step % 10000 == 0:
-                model.save_weights(checkpoint_dir+"/checkpoint_{}".format(global_step))
+                model.finetuned.save_weights(checkpoint_dir+"/checkpoint_{}".format(global_step))
 
 
             global_step += 1
@@ -137,7 +137,7 @@ def main():
 
         if stats['loss'] <= best_vali_loss:
             best_vali_loss = stats['loss']
-            model.save_weights(checkpoint_dir+"/best_model")
+            model.finetuned.save_weights(checkpoint_dir+"/best_model")
 
         print("---- Evaluation ------ Global Step ", global_step)
         print(stats)
