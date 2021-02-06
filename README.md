@@ -1,5 +1,7 @@
 Next Word Prediction using Universal Sentence Encoder
+
 A simple next word prediction model using Universal Sentence Encoder
+
 ======================
 
 ## Background
