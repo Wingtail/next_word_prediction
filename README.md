@@ -18,6 +18,9 @@ Implementing regularization techniques such as Dropout or L2 regularization on t
 
 The green represents GELU non-linear layer trained in RectifiedAdam with lr 0.001, the pink represents a feed forward extension inspired by the Transformer model's "infinitely wide neural networks layer", and the orange represents Dropout of 0.2 followed by GELU non-linear layer trained in RectifiedAdam. 
 
+<img src="https://github.com/Wingtail/next_word_prediction/blob/main/.github/images/train_log.png" data-canonical-src="![TTS banner](https://github.com/Wingtail/next_word_prediction/blob/main/.github/images/train_log.png =1080x640)
+" width="1080" height="640" align="center" />
+
 ## Usage
 ### Installation
 #### Deploy finetuned in webserver
