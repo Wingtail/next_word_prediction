@@ -68,11 +68,11 @@ It will automatically create a vocabulary.pckl file and .csv files for training 
 
 ### Finetune USE on Your Own
 Make sure you installed and created your own dataset.
-'''
+```
 python train_nwp.py
-'''
+```
 You can also run tensorboard using the command
-'''
+```
 tensorboard --logdir ffw_log
-'''
+```
 
